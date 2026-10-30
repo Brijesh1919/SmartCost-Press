@@ -7,7 +7,6 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, Alert, TouchableOpacity } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
-import * as Clipboard from 'expo-clipboard';
 import { useAppSettings } from '../context/AppSettingsContext';
 import { useCosting } from '../context/CostingContext';
 import Card from '../components/Card';
@@ -17,7 +16,7 @@ import ActionButton from '../components/ActionButton';
 import StatRow from '../components/StatRow';
 import StepProgressBar from '../components/StepProgressBar';
 import { formatRupee, formatIndianNumber } from '../utils/currency';
-import { shareQuotationPdf, buildQuotationPlainText } from '../utils/pdfGenerator';
+import { shareQuotationPdf } from '../utils/pdfGenerator';
 
 export default function Step4SummaryScreen({ onBack, onSavedSuccess, onStartNew }) {
   const { theme, t } = useAppSettings();
@@ -47,20 +46,6 @@ export default function Step4SummaryScreen({ onBack, onSavedSuccess, onStartNew 
     } finally {
       setIsSaving(false);
     }
-  };
-
-  const handleCopyQuote = async () => {
-    const plainText = buildQuotationPlainText({
-      id: 'QT-ESTIMATE',
-      customerName: jobState.customerName || 'Client',
-      product: jobState.product,
-      quantity: jobState.quantity,
-      totalAmount: calculation.finalAmount,
-      unitPrice: calculation.unitPrice,
-      inputs: jobState
-    });
-    await Clipboard.setStringAsync(plainText);
-    Alert.alert('Copied', t.copiedToClipboard);
   };
 
   const handleSharePdf = async () => {
@@ -350,13 +335,6 @@ export default function Step4SummaryScreen({ onBack, onSavedSuccess, onStartNew 
             variant="secondary"
             loading={isSharing}
             onPress={handleSharePdf}
-          />
-
-          <ActionButton
-            title={t.btnCopySummary}
-            icon="content-copy"
-            variant="outline"
-            onPress={handleCopyQuote}
           />
 
           <ActionButton

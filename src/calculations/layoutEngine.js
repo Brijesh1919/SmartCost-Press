@@ -20,7 +20,8 @@ function calculateSheetLayout({
   finishedHeight,
   sheetWidth,
   sheetHeight,
-  margin = 0.125
+  margin = 0.125,
+  forceOrientation = null
 }) {
   const fw = Math.max(0, Number(finishedWidth) || 0);
   const fh = Math.max(0, Number(finishedHeight) || 0);
@@ -72,7 +73,8 @@ function calculateSheetLayout({
       rotatedUps: 0,
       rotatedCols: 0,
       rotatedRows: 0,
-      sheetArea: totalSheetArea,
+      forceOrientation,
+    sheetArea: totalSheetArea,
       usedArea: 0,
       unusedArea: totalSheetArea,
       utilizationPercentage: 0,
@@ -80,8 +82,12 @@ function calculateSheetLayout({
     };
   }
 
-  const isRotated = rotatedUps > straightUps;
-  const bestUps = Math.max(straightUps, rotatedUps);
+  const isRotated = forceOrientation === 'rotated_90'
+    ? true
+    : forceOrientation === 'straight'
+      ? false
+      : rotatedUps > straightUps;
+  const bestUps = isRotated ? rotatedUps : straightUps;
   const selectedCols = isRotated ? rotatedCols : straightCols;
   const selectedRows = isRotated ? rotatedRows : straightRows;
   const pieceWidthOnSheet = isRotated ? fh : fw;
@@ -98,7 +104,7 @@ function calculateSheetLayout({
   let bestOrientation = 'straight';
   if (straightUps === rotatedUps) {
     bestOrientation = 'equal';
-  } else if (isRotated) {
+  } else if (rotatedUps > straightUps) {
     bestOrientation = 'rotated_90';
   }
 
@@ -118,6 +124,7 @@ function calculateSheetLayout({
     rotatedUps,
     rotatedCols,
     rotatedRows,
+    forceOrientation,
     sheetArea: totalSheetArea,
     usedArea: Number(usedArea.toFixed(2)),
     unusedArea: Number(unusedArea.toFixed(2)),

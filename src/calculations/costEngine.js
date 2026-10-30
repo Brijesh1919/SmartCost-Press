@@ -364,7 +364,8 @@ function calculateJobCost(jobParams) {
     finishedHeight,
     sheetWidth,
     sheetHeight,
-    margin
+    margin,
+    forceOrientation: jobParams.forceOrientation || null
   });
 
   const effectiveUps = manualUps && Number(manualUps) > 0 ? Number(manualUps) : Math.max(1, layout.ups || 1);
