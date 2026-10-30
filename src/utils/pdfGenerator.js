@@ -235,6 +235,12 @@ export function buildQuotationHtml(quotation) {
         <td>Paper cutting, machine setup & wrapping</td>
         <td class="text-right">${formatRupee(finishing.totalFixedFinishing || 0)}</td>
       </tr>
+      ${results.carbon?.isBillBook ? `
+      <tr>
+        <td><strong>Carbon Paper Required</strong></td>
+        <td>${results.carbon.carbonSheets} Sheets</td>
+        <td class="text-right">${formatRupee(results.carbon.carbonCost || 0)}</td>
+      </tr>` : ''}
       <tr class="highlight-row">
         <td colspan="2">Net Production Cost</td>
         <td class="text-right">${formatRupee(results.productionCost || 0)}</td>

@@ -276,7 +276,10 @@ function calculateJobCost(jobParams) {
 
     // Product specific copies & leaves
     leaves = 1,
-    copyType = '1 — Single', // '1 — Single', '2 — Duplicate', '3 — Triplicate'
+    copyType = '1 — Single', // '1 — Single', '2 — Duplicate / Triplicate'
+    carbonReamSheets = 500,
+    carbonReamPrice = 0,
+    carbonPages = 100,
 
     // Paper specs
     gsm = 130,
@@ -314,6 +317,10 @@ function calculateJobCost(jobParams) {
   } = jobParams;
 
   const q = Math.max(0, Number(quantity) || 0);
+  const isBillBook = Boolean(
+    (product && product.toLowerCase().includes('bill book')) ||
+    jobParams.productId === 'bill_book'
+  );
 
   if (q <= 0) {
     const layout = calculateSheetLayout({
@@ -335,6 +342,14 @@ function calculateJobCost(jobParams) {
       plates: { plateCount: 0, plateRate, plateCost: 0 },
       finishing: { variablePerPiece: 0, totalVariableFinishing: 0, totalFixedFinishing: 0, cuttingTotal: 0, otherTotal: 0, totalFinishingCost: 0 },
       cover: null,
+      carbon: {
+        isBillBook,
+        carbonSheets: 0,
+        carbonCost: 0,
+        carbonReamSheets: Number(carbonReamSheets) || 500,
+        carbonReamPrice: Number(carbonReamPrice) || 0,
+        carbonPages: Number(carbonPages) || 100
+      },
       productionCost: 0,
       profit: { profitType, profitPercentage, profitAmount: 0, sellingPrice: 0, costPerPiece: 0, sellingPricePerPiece: 0, effectiveMarkupPct: 0, effectiveMarginPct: 0 },
       tax: { gstType, gstRate, taxableAmount: 0, gstAmount: 0, finalAmount: 0 },
@@ -444,11 +459,24 @@ function calculateJobCost(jobParams) {
     };
   }
 
+  // Carbon Paper Calculation (Bill Book only)
+  const cPages = Number(carbonPages) !== undefined && !Number.isNaN(Number(carbonPages)) ? Number(carbonPages) : 100;
+  const cReamSheets = Number(carbonReamSheets) !== undefined && !Number.isNaN(Number(carbonReamSheets)) ? Number(carbonReamSheets) : 500;
+  const cReamPrice = Math.max(0, Number(carbonReamPrice) || 0);
+
+  const carbonSheets = Math.ceil(q * cPages);
+
+  const carbon =
+    isBillBook && copyType === "2 — Duplicate / Triplicate" && cReamSheets > 0
+      ? (carbonSheets * cReamPrice) / cReamSheets
+      : 0;
+
   // 8. Total Production Cost
   const baseProductionCost = paperResult.paperCost +
     printingResult.printingCost +
     plateResult.plateCost +
-    finishingResult.totalFinishingCost;
+    finishingResult.totalFinishingCost +
+    carbon;
 
   const totalProductionCost = Number((baseProductionCost + (coverResult ? coverResult.totalCoverCost : 0)).toFixed(2));
 
@@ -482,6 +510,14 @@ function calculateJobCost(jobParams) {
     plates: plateResult,
     finishing: finishingResult,
     cover: coverResult,
+    carbon: {
+      isBillBook,
+      carbonSheets: isBillBook ? carbonSheets : 0,
+      carbonCost: isBillBook ? Number(carbon.toFixed(2)) : 0,
+      carbonReamSheets: cReamSheets,
+      carbonReamPrice: cReamPrice,
+      carbonPages: cPages
+    },
     productionCost: totalProductionCost,
     profit: profitResult,
     tax: taxResult,

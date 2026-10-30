@@ -1,15 +1,15 @@
 {
   "expo": {
-    "name": "Smart Press Cost Calculator",
-    "slug": "smart-press-cost-calculator",
+    "name": "SmartCost Press",
+    "slug": "smartcost-press",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
     "splash": {
-      "image": "./assets/splash-icon.png",
+      "image": "./assets/splash-logo.png",
       "resizeMode": "contain",
-      "backgroundColor": "#004AC6"
+      "backgroundColor": "#FFFFFF"
     },
     "ios": {
       "supportsTablet": true
@@ -17,9 +17,9 @@
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#004AC6"
+        "backgroundColor": "#2563EB"
       },
-      "package": "com.smartprintingpress.costcalculator",
+      "package": "com.smartcostpress.calculator",
       "versionCode": 1,
       "permissions": [
         "WRITE_EXTERNAL_STORAGE",

@@ -196,6 +196,18 @@ export default function QuotationDetailScreen({ quotation, onBack, onDuplicate, 
             label="5. Cutting & Packing"
             value={formatRupee(finishing.totalFixedFinishing || 0)}
           />
+          {results.carbon?.isBillBook && (
+            <>
+              <StatRow
+                label="Carbon Paper Required"
+                value={results.carbon.carbonSheets}
+              />
+              <StatRow
+                label="Carbon Paper Cost"
+                value={formatRupee(results.carbon.carbonCost || 0)}
+              />
+            </>
+          )}
           <StatRow
             label="Net Production Cost"
             value={formatRupee(results.productionCost || 0)}
@@ -215,12 +227,14 @@ export default function QuotationDetailScreen({ quotation, onBack, onDuplicate, 
           {/* Grand Total Callout Box */}
           <View style={[styles.grandTotalCallout, { backgroundColor: theme.colors.successSurface, borderColor: theme.colors.successBorder }]}>
             <View>
-              <Text style={styles.grandTotalLabel}>GRAND TOTAL QUOTED</Text>
-              <Text style={styles.grandTotalUnit}>
+              <Text style={[styles.grandTotalLabel, { color: theme.isDark ? '#86EFAC' : '#166534' }]}>
+                GRAND TOTAL QUOTED
+              </Text>
+              <Text style={[styles.grandTotalUnit, { color: theme.isDark ? '#D1FAE5' : '#166534' }]}>
                 Unit Rate: {formatRupee(currentQuote.unitPrice)} / Pc
               </Text>
             </View>
-            <Text style={styles.grandTotalAmount}>
+            <Text style={[styles.grandTotalAmount, { color: theme.isDark ? '#4ADE80' : '#166534' }]}>
               {formatRupee(currentQuote.totalAmount)}
             </Text>
           </View>

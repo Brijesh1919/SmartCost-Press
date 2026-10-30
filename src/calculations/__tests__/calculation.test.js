@@ -73,6 +73,30 @@ it('correctly identifies rotated 90° orientation when rotation yields more ups'
   assert.strictEqual(result.bestOrientation, 'rotated_90');
 });
 
+it('accurately calculates sticker layout 4x3 on 20x30 sheet (42 ups: 6 cols x 7 rows)', () => {
+  const result = calculateSheetLayout({
+    finishedWidth: 4,
+    finishedHeight: 3,
+    sheetWidth: 20,
+    sheetHeight: 30,
+    margin: 0.125
+  });
+  // Usable: 19.75 x 29.75
+  // Straight: floor(19.75/4)=4, floor(29.75/3)=9 -> 36 ups
+  // Rotated: floor(19.75/3)=6, floor(29.75/4)=7 -> 42 ups
+  assert.strictEqual(result.ups, 42);
+  assert.strictEqual(result.isRotated, true);
+  assert.strictEqual(result.cols, 6);
+  assert.strictEqual(result.rows, 7);
+  assert.strictEqual(result.pieceWidthOnSheet, 3);
+  assert.strictEqual(result.pieceHeightOnSheet, 4);
+  assert.strictEqual(result.gridWidth, 18);
+  assert.strictEqual(result.gridHeight, 28);
+  assert.strictEqual(result.usedArea, 504);
+  assert.strictEqual(result.unusedArea, 96);
+  assert.strictEqual(result.utilizationPercentage, 84);
+});
+
 // Test 2: Wastage calculation
 it('calculates paper wastage percentage correctly', () => {
   // 1000 forms / 4 ups = 250 base sheets
@@ -299,6 +323,116 @@ it('reconciles complete job costing mathematics and unit prices', () => {
   assert.strictEqual(job.finalAmount, 8721.44);
   // Unit price = 8721.44 / 1000 = 8.72
   assert.strictEqual(job.unitPrice, 8.72);
+});
+
+// Test 11: Bill Book Carbon Paper Calculations
+it('calculates Bill Book carbon paper cost correctly for Duplicate / Triplicate copy type', () => {
+  const job = calculateJobCost({
+    productId: 'bill_book',
+    product: 'Bill Book',
+    quantity: 20,
+    leaves: 100,
+    copyType: '2 — Duplicate / Triplicate',
+    carbonReamSheets: 500,
+    carbonReamPrice: 350,
+    carbonPages: 100,
+    finishedWidth: 5.5,
+    finishedHeight: 8.5,
+    sheetWidth: 18,
+    sheetHeight: 25,
+    gsm: 70,
+    reamPrice: 1200,
+    sides: 1,
+    colorsPerSide: 1,
+    ratePer1000PerColor: 200,
+    plateRate: 250,
+    cuttingTotal: 100,
+    otherTotal: 100,
+    profitType: 'markup',
+    profitPercentage: 20,
+    gstRate: 0
+  });
+
+  // carbonSheets = Math.ceil(20 * 100) = 2000
+  assert.strictEqual(job.carbon.isBillBook, true);
+  assert.strictEqual(job.carbon.carbonSheets, 2000);
+  // carbon = (2000 * 350) / 500 = 1400
+  assert.strictEqual(job.carbon.carbonCost, 1400);
+
+  // Verify carbon cost is included in productionCost
+  const expectedBase = job.paper.paperCost +
+    job.printing.printingCost +
+    job.plates.plateCost +
+    job.finishing.totalFinishingCost +
+    1400;
+  assert.strictEqual(job.productionCost, Number(expectedBase.toFixed(2)));
+  // Verify profit and final amount reflect carbon cost
+  assert.strictEqual(job.profit.profitAmount, Number((job.productionCost * 0.2).toFixed(2)));
+  assert.strictEqual(job.profit.sellingPrice, Number((job.productionCost + job.profit.profitAmount).toFixed(2)));
+});
+
+it('produces zero carbon cost for Bill Book with single copy', () => {
+  const job = calculateJobCost({
+    productId: 'bill_book',
+    product: 'Bill Book',
+    quantity: 20,
+    leaves: 100,
+    copyType: '1 — Single',
+    carbonReamSheets: 500,
+    carbonReamPrice: 350,
+    carbonPages: 100,
+    finishedWidth: 5.5,
+    finishedHeight: 8.5,
+    sheetWidth: 18,
+    sheetHeight: 25,
+    gsm: 70,
+    reamPrice: 1200
+  });
+
+  assert.strictEqual(job.carbon.isBillBook, true);
+  assert.strictEqual(job.carbon.carbonSheets, 2000);
+  assert.strictEqual(job.carbon.carbonCost, 0); // single copy = 0 carbon cost
+});
+
+it('produces zero carbon cost for Bill Book when carbonReamPrice is 0 (default)', () => {
+  const job = calculateJobCost({
+    productId: 'bill_book',
+    product: 'Bill Book',
+    quantity: 20,
+    leaves: 100,
+    copyType: '2 — Duplicate / Triplicate',
+    carbonReamSheets: 500,
+    carbonReamPrice: 0,
+    carbonPages: 100,
+    finishedWidth: 5.5,
+    finishedHeight: 8.5,
+    sheetWidth: 18,
+    sheetHeight: 25
+  });
+
+  assert.strictEqual(job.carbon.isBillBook, true);
+  assert.strictEqual(job.carbon.carbonSheets, 2000);
+  assert.strictEqual(job.carbon.carbonCost, 0);
+});
+
+it('ensures non-Bill Book products produce zero carbon cost and have isBillBook false', () => {
+  const job = calculateJobCost({
+    productId: 'brochure',
+    product: 'Brochure',
+    quantity: 1000,
+    finishedWidth: 8.5,
+    finishedHeight: 11,
+    sheetWidth: 20,
+    sheetHeight: 30,
+    carbonReamSheets: 500,
+    carbonReamPrice: 500,
+    carbonPages: 100,
+    copyType: '2 — Duplicate / Triplicate'
+  });
+
+  assert.strictEqual(job.carbon.isBillBook, false);
+  assert.strictEqual(job.carbon.carbonCost, 0);
+  assert.strictEqual(job.carbon.carbonSheets, 0);
 });
 
 console.log(`\nAll ${passedTests} / ${totalTests} calculation tests passed successfully! ✨`);

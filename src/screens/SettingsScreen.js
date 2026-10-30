@@ -178,51 +178,57 @@ export default function SettingsScreen() {
         <InputField
           label={t.defaultPrintRate}
           value={settings.printRatePer1000PerColor}
-          onChangeText={(txt) => updateSettings({ printRatePer1000PerColor: Math.max(0, Number(txt) || 0) })}
-          keyboardType="number-pad"
+          onChangeText={(txt) => updateSettings({ printRatePer1000PerColor: txt })}
+          keyboardType="decimal-pad"
           unit="₹"
           showStepper
           step={25}
+          min={0}
         />
 
         <InputField
           label={t.defaultPlateRate}
           value={settings.plateRate}
-          onChangeText={(txt) => updateSettings({ plateRate: Math.max(0, Number(txt) || 0) })}
-          keyboardType="number-pad"
+          onChangeText={(txt) => updateSettings({ plateRate: txt })}
+          keyboardType="decimal-pad"
           unit="₹"
           showStepper
           step={25}
+          min={0}
         />
 
         <InputField
           label={t.defaultMarkup}
           value={settings.profitPercentage}
-          onChangeText={(txt) => updateSettings({ profitPercentage: Math.max(0, Math.min(99, Number(txt) || 0)) })}
-          keyboardType="number-pad"
+          onChangeText={(txt) => updateSettings({ profitPercentage: txt })}
+          keyboardType="decimal-pad"
           unit="%"
           showStepper
           step={5}
+          min={0}
+          max={99}
         />
 
         <InputField
           label={t.defaultWastage}
           value={settings.wastagePercent}
-          onChangeText={(txt) => updateSettings({ wastagePercent: Math.max(0, Number(txt) || 0) })}
-          keyboardType="number-pad"
+          onChangeText={(txt) => updateSettings({ wastagePercent: txt })}
+          keyboardType="decimal-pad"
           unit="%"
           showStepper
           step={1}
+          min={0}
         />
 
         <InputField
           label={t.defaultCutting}
           value={settings.cuttingTotal}
-          onChangeText={(txt) => updateSettings({ cuttingTotal: Math.max(0, Number(txt) || 0) })}
-          keyboardType="number-pad"
+          onChangeText={(txt) => updateSettings({ cuttingTotal: txt })}
+          keyboardType="decimal-pad"
           unit="₹"
           showStepper
           step={50}
+          min={0}
         />
       </Card>
 

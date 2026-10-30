@@ -26,6 +26,9 @@ function getInitialJobState(settings) {
     margin: 0.125,
     leaves: DEFAULT_PRODUCT.defaultLeaves || 1,
     copyType: DEFAULT_PRODUCT.defaultCopies || '1 — Single',
+    carbonReamSheets: DEFAULT_PRODUCT.carbonReamSheets || 500,
+    carbonReamPrice: DEFAULT_PRODUCT.carbonReamPrice !== undefined ? DEFAULT_PRODUCT.carbonReamPrice : 0,
+    carbonPages: DEFAULT_PRODUCT.carbonPages || 100,
     hasSeparateCover: false,
 
     // Step 2: Paper & Print
@@ -109,6 +112,9 @@ export function CostingProvider({ children }) {
       reamPrice: productObj.defaultReamPrice || prev.reamPrice,
       leaves: productObj.defaultLeaves || 1,
       copyType: productObj.defaultCopies || '1 — Single',
+      carbonReamSheets: productObj.carbonReamSheets || prev.carbonReamSheets || 500,
+      carbonReamPrice: productObj.carbonReamPrice !== undefined ? productObj.carbonReamPrice : (prev.carbonReamPrice !== undefined ? prev.carbonReamPrice : 0),
+      carbonPages: productObj.carbonPages || prev.carbonPages || 100,
       sides: productObj.defaultSides || prev.sides,
       colorsPerSide: productObj.defaultColors || prev.colorsPerSide,
       foldingPerPiece: productObj.defaultFolding || 0,

@@ -13,7 +13,7 @@ import ActionButton from '../components/ActionButton';
 import { loadQuotations } from '../storage/quotationStorage';
 import { formatRupee, formatIndianNumber } from '../utils/currency';
 
-export default function HomeScreen({ onNavigateTab, onSelectQuotation }) {
+export default function HomeScreen({ onNavigateTab, onSelectQuotation, onOpenUtility }) {
   const { theme, t } = useAppSettings();
   const { resetJobCosting, setCurrentStep } = useCosting();
   const [recentQuotes, setRecentQuotes] = useState([]);
@@ -101,10 +101,7 @@ export default function HomeScreen({ onNavigateTab, onSelectQuotation }) {
       <View style={styles.utilGrid}>
         {/* Sheet Cuts */}
         <TouchableOpacity
-          onPress={() => {
-            setCurrentStep(3);
-            onNavigateTab('costing');
-          }}
+          onPress={() => onOpenUtility && onOpenUtility('sheet_cuts')}
           activeOpacity={0.7}
           style={[styles.utilTile, { backgroundColor: theme.colors.surfaceCard, borderColor: theme.colors.divider }]}
         >
@@ -117,15 +114,12 @@ export default function HomeScreen({ onNavigateTab, onSelectQuotation }) {
 
         {/* Ream Wt */}
         <TouchableOpacity
-          onPress={() => {
-            setCurrentStep(2);
-            onNavigateTab('costing');
-          }}
+          onPress={() => onOpenUtility && onOpenUtility('ream_weight')}
           activeOpacity={0.7}
           style={[styles.utilTile, { backgroundColor: theme.colors.surfaceCard, borderColor: theme.colors.divider }]}
         >
-          <View style={[styles.utilIconBadge, { backgroundColor: '#FEF3C7' }]}>
-            <MaterialIcons name="scale" size={20} color="#B45309" />
+          <View style={[styles.utilIconBadge, { backgroundColor: theme.colors.warningSurface }]}>
+            <MaterialIcons name="scale" size={20} color={theme.colors.warningText} />
           </View>
           <Text style={[styles.utilName, { color: theme.colors.textPrimary }]}>{t.utilReamWt}</Text>
           <Text style={[styles.utilSub, { color: theme.colors.textSecondary }]}>{t.utilReamWtSub}</Text>
@@ -133,15 +127,12 @@ export default function HomeScreen({ onNavigateTab, onSelectQuotation }) {
 
         {/* Plate Cost */}
         <TouchableOpacity
-          onPress={() => {
-            setCurrentStep(2);
-            onNavigateTab('costing');
-          }}
+          onPress={() => onOpenUtility && onOpenUtility('plate_cost')}
           activeOpacity={0.7}
           style={[styles.utilTile, { backgroundColor: theme.colors.surfaceCard, borderColor: theme.colors.divider }]}
         >
-          <View style={[styles.utilIconBadge, { backgroundColor: '#E7F6ED' }]}>
-            <MaterialIcons name="currency-rupee" size={20} color="#166534" />
+          <View style={[styles.utilIconBadge, { backgroundColor: theme.colors.successSurface }]}>
+            <MaterialIcons name="currency-rupee" size={20} color={theme.isDark ? '#4ADE80' : '#166534'} />
           </View>
           <Text style={[styles.utilName, { color: theme.colors.textPrimary }]}>{t.utilPlateCost}</Text>
           <Text style={[styles.utilSub, { color: theme.colors.textSecondary }]}>{t.utilPlateCostSub}</Text>

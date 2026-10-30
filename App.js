@@ -23,16 +23,31 @@ import QuotationsListScreen from './src/screens/QuotationsListScreen';
 import QuotationDetailScreen from './src/screens/QuotationDetailScreen';
 import SettingsScreen from './src/screens/SettingsScreen';
 
+// Standalone Quick Utility Screens
+import SheetCutsUtilScreen from './src/screens/SheetCutsUtilScreen';
+import ReamWeightUtilScreen from './src/screens/ReamWeightUtilScreen';
+import PlateCostUtilScreen from './src/screens/PlateCostUtilScreen';
+
+// First Starting App Opening Splash Loader
+import AppSplashScreen from './src/screens/AppSplashScreen';
+
 function MainApp() {
   const { theme } = useAppSettings();
   const { currentStep, setCurrentStep, resetJobCosting, loadJobFromQuotation } = useCosting();
 
+  const [isSplashDone, setIsSplashDone] = useState(false);
   const [activeTab, setActiveTab] = useState('home'); // 'home', 'costing', 'quotations', 'settings'
   const [selectedQuotation, setSelectedQuotation] = useState(null);
+  const [activeUtility, setActiveUtility] = useState(null); // 'sheet_cuts', 'ream_weight', 'plate_cost'
 
   // Hardware Android Back button handler
   useEffect(() => {
     const onBackPress = () => {
+      if (activeUtility) {
+        setActiveUtility(null);
+        return true;
+      }
+
       if (selectedQuotation) {
         setSelectedQuotation(null);
         return true;
@@ -59,40 +74,50 @@ function MainApp() {
 
     const backHandler = BackHandler.addEventListener('hardwareBackPress', onBackPress);
     return () => backHandler.remove();
-  }, [selectedQuotation, activeTab, currentStep]);
+  }, [selectedQuotation, activeUtility, activeTab, currentStep]);
 
   const handleTabSelect = (tabKey) => {
+    setActiveUtility(null);
     setSelectedQuotation(null);
     setActiveTab(tabKey);
   };
 
   const handleSelectQuotation = (quote) => {
+    setActiveUtility(null);
     setSelectedQuotation(quote);
   };
 
   const handleDuplicateQuotation = (quote) => {
     loadJobFromQuotation(quote);
+    setActiveUtility(null);
     setSelectedQuotation(null);
     setActiveTab('costing');
   };
 
   const handleQuotationSaved = (savedQuote) => {
+    setActiveUtility(null);
     setSelectedQuotation(savedQuote);
     setActiveTab('quotations');
   };
 
   const handleStartNewCosting = () => {
     resetJobCosting();
+    setActiveUtility(null);
     setSelectedQuotation(null);
     setActiveTab('costing');
   };
+
+  // If app just opened, show the splash loader
+  if (!isSplashDone) {
+    return <AppSplashScreen onFinish={() => setIsSplashDone(true)} />;
+  }
 
   return (
     <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.colors.surfaceCard }]}>
       <ExpoStatusBar style={theme.isDark ? 'light' : 'dark'} backgroundColor={theme.colors.surfaceCard} />
       <View style={[styles.appContainer, { backgroundColor: theme.colors.background }]}>
-        {/* Top Header */}
-        <Header />
+        {/* Top Header - hidden during sub-screen views with their own back header */}
+        {!selectedQuotation && !activeUtility && <Header />}
 
         {/* Screen Content Body */}
         <View style={styles.screenContainer}>
@@ -103,10 +128,17 @@ function MainApp() {
               onDuplicate={handleDuplicateQuotation}
               onDeleted={() => setSelectedQuotation(null)}
             />
+          ) : activeUtility === 'sheet_cuts' ? (
+            <SheetCutsUtilScreen onBack={() => setActiveUtility(null)} />
+          ) : activeUtility === 'ream_weight' ? (
+            <ReamWeightUtilScreen onBack={() => setActiveUtility(null)} />
+          ) : activeUtility === 'plate_cost' ? (
+            <PlateCostUtilScreen onBack={() => setActiveUtility(null)} />
           ) : activeTab === 'home' ? (
             <HomeScreen
               onNavigateTab={handleTabSelect}
               onSelectQuotation={handleSelectQuotation}
+              onOpenUtility={(utilKey) => setActiveUtility(utilKey)}
             />
           ) : activeTab === 'costing' ? (
             currentStep === 1 ? (
@@ -142,7 +174,7 @@ function MainApp() {
         </View>
 
         {/* Bottom 4-Tab Navigation */}
-        {!selectedQuotation && (
+        {!selectedQuotation && !activeUtility && (
           <BottomNav activeTab={activeTab} onTabSelect={handleTabSelect} />
         )}
       </View>

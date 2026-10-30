@@ -127,7 +127,7 @@ export default function Step1ProductScreen({ onNext, onCancel }) {
             label="Custom Quantity"
             sublabel="Pcs / Units"
             value={jobState.quantity}
-            onChangeText={(txt) => updateJobField('quantity', Math.max(1, Number(txt) || 0))}
+            onChangeText={(txt) => updateJobField('quantity', txt)}
             keyboardType="number-pad"
             unit="Pcs"
             showStepper
@@ -154,21 +154,23 @@ export default function Step1ProductScreen({ onNext, onCancel }) {
             <InputField
               label={t.finishedWidth}
               value={jobState.finishedWidth}
-              onChangeText={(txt) => updateJobField('finishedWidth', Number(txt) || 0)}
+              onChangeText={(txt) => updateJobField('finishedWidth', txt)}
               keyboardType="decimal-pad"
               unit="in"
               showStepper
               step={0.25}
+              min={0.1}
               style={{ flex: 1 }}
             />
             <InputField
               label={t.finishedHeight}
               value={jobState.finishedHeight}
-              onChangeText={(txt) => updateJobField('finishedHeight', Number(txt) || 0)}
+              onChangeText={(txt) => updateJobField('finishedHeight', txt)}
               keyboardType="decimal-pad"
               unit="in"
               showStepper
               step={0.25}
+              min={0.1}
               style={{ flex: 1 }}
             />
           </View>
@@ -192,21 +194,23 @@ export default function Step1ProductScreen({ onNext, onCancel }) {
             <InputField
               label={t.sheetWidth}
               value={jobState.sheetWidth}
-              onChangeText={(txt) => updateJobField('sheetWidth', Number(txt) || 0)}
+              onChangeText={(txt) => updateJobField('sheetWidth', txt)}
               keyboardType="decimal-pad"
               unit="in"
               showStepper
               step={1}
+              min={1}
               style={{ flex: 1 }}
             />
             <InputField
               label={t.sheetHeight}
               value={jobState.sheetHeight}
-              onChangeText={(txt) => updateJobField('sheetHeight', Number(txt) || 0)}
+              onChangeText={(txt) => updateJobField('sheetHeight', txt)}
               keyboardType="decimal-pad"
               unit="in"
               showStepper
               step={1}
+              min={1}
               style={{ flex: 1 }}
             />
           </View>
@@ -220,7 +224,10 @@ export default function Step1ProductScreen({ onNext, onCancel }) {
             </Text>
             <PillGroup
               label={t.copiesType}
-              options={[t.singleCopy, t.duplicateCopy, t.triplicateCopy]}
+              options={[
+                { label: '1 — Single', value: '1 — Single' },
+                { label: '2 — Duplicate / Triplicate', value: '2 — Duplicate / Triplicate' }
+              ]}
               selectedValue={jobState.copyType}
               onSelect={(val) => updateJobField('copyType', val)}
             />
@@ -228,12 +235,49 @@ export default function Step1ProductScreen({ onNext, onCancel }) {
               label={t.leavesPerUnit}
               sublabel="e.g. 50 or 100 sets per book"
               value={jobState.leaves}
-              onChangeText={(txt) => updateJobField('leaves', Math.max(1, Number(txt) || 1))}
+              onChangeText={(txt) => updateJobField('leaves', txt)}
               keyboardType="number-pad"
               unit="Sets"
               showStepper
               step={50}
               min={10}
+            />
+            <View style={styles.dimensionsRow}>
+              <InputField
+                label={t.carbonReamSheets}
+                sublabel="Default 500"
+                value={jobState.carbonReamSheets}
+                onChangeText={(txt) => updateJobField('carbonReamSheets', txt)}
+                keyboardType="number-pad"
+                unit="Sheets"
+                showStepper
+                step={50}
+                min={1}
+                style={{ flex: 1 }}
+              />
+              <InputField
+                label={t.carbonPages}
+                sublabel="Default 100"
+                value={jobState.carbonPages}
+                onChangeText={(txt) => updateJobField('carbonPages', txt)}
+                keyboardType="number-pad"
+                unit="Pages"
+                showStepper
+                step={10}
+                min={1}
+                style={{ flex: 1 }}
+              />
+            </View>
+            <InputField
+              label={t.carbonReamPrice}
+              sublabel="Rate per ream in ₹ (Default 0)"
+              value={jobState.carbonReamPrice}
+              onChangeText={(txt) => updateJobField('carbonReamPrice', txt)}
+              keyboardType="decimal-pad"
+              unit="₹"
+              showStepper
+              step={50}
+              min={0}
             />
           </Card>
         )}

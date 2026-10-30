@@ -73,19 +73,21 @@ export default function Step2PaperScreen({ onNext, onBack }) {
             <InputField
               label={t.reamPrice}
               value={jobState.reamPrice}
-              onChangeText={(txt) => updateJobField('reamPrice', Math.max(0, Number(txt) || 0))}
-              keyboardType="number-pad"
+              onChangeText={(txt) => updateJobField('reamPrice', txt)}
+              keyboardType="decimal-pad"
               showStepper
               step={100}
+              min={0}
               style={{ flex: 1 }}
             />
             <InputField
               label={t.sheetsPerReam}
               value={jobState.sheetsPerReam}
-              onChangeText={(txt) => updateJobField('sheetsPerReam', Math.max(1, Number(txt) || 500))}
+              onChangeText={(txt) => updateJobField('sheetsPerReam', txt)}
               keyboardType="number-pad"
               showStepper
               step={50}
+              min={1}
               style={{ flex: 1 }}
             />
           </View>
@@ -172,11 +174,12 @@ export default function Step2PaperScreen({ onNext, onBack }) {
             label={t.printingRate}
             sublabel="Offset machine running slab"
             value={jobState.ratePer1000PerColor}
-            onChangeText={(txt) => updateJobField('ratePer1000PerColor', Math.max(0, Number(txt) || 0))}
-            keyboardType="number-pad"
+            onChangeText={(txt) => updateJobField('ratePer1000PerColor', txt)}
+            keyboardType="decimal-pad"
             unit="₹"
             showStepper
             step={25}
+            min={0}
           />
 
           {/* Plates Section */}
@@ -185,20 +188,23 @@ export default function Step2PaperScreen({ onNext, onBack }) {
               label={t.plateCount}
               sublabel={`Auto: ${jobState.sides * jobState.colorsPerSide}`}
               value={jobState.manualPlateCount !== null ? jobState.manualPlateCount : plates.plateCount}
-              onChangeText={(txt) => updateJobField('manualPlateCount', txt === '' ? null : Number(txt))}
+              onChangeText={(txt) => updateJobField('manualPlateCount', txt === '' ? null : txt)}
               keyboardType="number-pad"
               showStepper
               step={1}
+              min={1}
               style={{ flex: 1 }}
             />
             <InputField
               label={t.plateRate}
               sublabel="CTP Plate Rate"
               value={jobState.plateRate}
-              onChangeText={(txt) => updateJobField('plateRate', Math.max(0, Number(txt) || 0))}
-              keyboardType="number-pad"
+              onChangeText={(txt) => updateJobField('plateRate', txt)}
+              keyboardType="decimal-pad"
+              unit="₹"
               showStepper
               step={25}
+              min={0}
               style={{ flex: 1 }}
             />
           </View>

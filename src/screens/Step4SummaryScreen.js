@@ -94,24 +94,40 @@ export default function Step4SummaryScreen({ onBack, onSavedSuccess, onStartNew 
         <Card variant="success" style={styles.heroCalloutCard}>
           <View style={styles.heroCalloutTop}>
             <View>
-              <Text style={styles.heroCalloutTitle}>{t.finalQuotedPrice}</Text>
-              <Text style={styles.heroCalloutUnit}>
+              <Text style={[styles.heroCalloutTitle, { color: theme.isDark ? '#86EFAC' : '#166534' }]}>
+                {t.finalQuotedPrice}
+              </Text>
+              <Text style={[styles.heroCalloutUnit, { color: theme.isDark ? '#D1FAE5' : '#166534' }]}>
                 {t.sellingPricePerPiece}: {formatRupee(calculation.unitPrice)} / Pc
               </Text>
             </View>
-            <View style={styles.yieldPill}>
+            <View
+              style={[
+                styles.yieldPill,
+                {
+                  backgroundColor: theme.isDark ? '#065F46' : '#166534',
+                  borderColor: theme.isDark ? '#34D399' : 'transparent',
+                  borderWidth: theme.isDark ? 1 : 0
+                }
+              ]}
+            >
               <Text style={styles.yieldText}>
                 +{profit.effectiveMarginPct}% Yield
               </Text>
             </View>
           </View>
 
-          <Text style={styles.heroCalloutAmount}>
+          <Text style={[styles.heroCalloutAmount, { color: theme.isDark ? '#4ADE80' : '#166534' }]}>
             {formatRupee(calculation.finalAmount)}
           </Text>
 
-          <View style={styles.heroSpecsRow}>
-            <Text style={styles.heroSpecItem}>
+          <View
+            style={[
+              styles.heroSpecsRow,
+              { borderTopColor: theme.isDark ? 'rgba(74, 222, 128, 0.25)' : 'rgba(22, 101, 52, 0.2)' }
+            ]}
+          >
+            <Text style={[styles.heroSpecItem, { color: theme.isDark ? '#86EFAC' : '#166534' }]}>
               {jobState.product} • {formatIndianNumber(jobState.quantity)} Pcs • {calculation.effectiveUps} Ups
             </Text>
           </View>
@@ -175,6 +191,18 @@ export default function Step4SummaryScreen({ onBack, onSavedSuccess, onStartNew 
                   value={formatRupee(calculation.cover.totalCoverCost)}
                 />
               )}
+              {calculation.carbon?.isBillBook && (
+                <>
+                  <StatRow
+                    label={t.carbonPaperRequired}
+                    value={calculation.carbon.carbonSheets}
+                  />
+                  <StatRow
+                    label={t.carbonPaperCost}
+                    value={formatRupee(calculation.carbon.carbonCost)}
+                  />
+                </>
+              )}
               <StatRow
                 label={t.totalProductionCost}
                 value={formatRupee(calculation.productionCost)}
@@ -210,8 +238,8 @@ export default function Step4SummaryScreen({ onBack, onSavedSuccess, onStartNew 
           <InputField
             label={jobState.profitType === 'markup' ? 'Markup Percentage on Cost' : 'Target Margin Percentage on Selling Price'}
             value={jobState.profitPercentage}
-            onChangeText={(txt) => updateJobField('profitPercentage', Math.max(0, Math.min(99, Number(txt) || 0)))}
-            keyboardType="number-pad"
+            onChangeText={(txt) => updateJobField('profitPercentage', txt)}
+            keyboardType="decimal-pad"
             unit="%"
             showStepper
             step={5}

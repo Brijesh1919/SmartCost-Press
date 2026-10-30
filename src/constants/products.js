@@ -20,7 +20,10 @@ export const PRODUCTS = [
     defaultPaperType: 'Maplitho / Ledger',
     defaultReamPrice: 1200,
     defaultLeaves: 100, // 100 leaves/sets per book
-    defaultCopies: '2 — Duplicate',
+    defaultCopies: '2 — Duplicate / Triplicate',
+    carbonReamSheets: 500,
+    carbonReamPrice: 0,
+    carbonPages: 100,
     defaultSides: 1,
     defaultColors: 1,
     bindingType: 'Pad / Center Stitch'

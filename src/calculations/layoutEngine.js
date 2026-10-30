@@ -82,6 +82,13 @@ function calculateSheetLayout({
 
   const isRotated = rotatedUps > straightUps;
   const bestUps = Math.max(straightUps, rotatedUps);
+  const selectedCols = isRotated ? rotatedCols : straightCols;
+  const selectedRows = isRotated ? rotatedRows : straightRows;
+  const pieceWidthOnSheet = isRotated ? fh : fw;
+  const pieceHeightOnSheet = isRotated ? fw : fh;
+  const gridWidth = Number((selectedCols * pieceWidthOnSheet).toFixed(3));
+  const gridHeight = Number((selectedRows * pieceHeightOnSheet).toFixed(3));
+
   const usedArea = bestUps * fw * fh;
   const unusedArea = Math.max(0, totalSheetArea - usedArea);
   const utilizationPercentage = totalSheetArea > 0
@@ -99,8 +106,12 @@ function calculateSheetLayout({
     ups: bestUps,
     bestOrientation,
     isRotated,
-    cols: isRotated ? rotatedCols : straightCols,
-    rows: isRotated ? rotatedRows : straightRows,
+    cols: selectedCols,
+    rows: selectedRows,
+    pieceWidthOnSheet,
+    pieceHeightOnSheet,
+    gridWidth,
+    gridHeight,
     straightUps,
     straightCols,
     straightRows,

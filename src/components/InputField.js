@@ -3,9 +3,10 @@
  * Industrial Paper Ledger Input Field.
  * Uses Stitch's characteristic #FFF8DF ledger tone.
  * Compact, borderless steppers preventing text clipping and harsh line artifacts.
+ * Supports smooth decimal entry (e.g. 0.5, 8.5) without point erasure.
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, StyleSheet, TouchableOpacity } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useAppSettings } from '../context/AppSettingsContext';
@@ -15,7 +16,7 @@ export default function InputField({
   sublabel,
   value,
   onChangeText,
-  keyboardType = 'numeric',
+  keyboardType = 'decimal-pad',
   unit,
   placeholder,
   editable = true,
@@ -28,16 +29,102 @@ export default function InputField({
   const { theme } = useAppSettings();
   const [isFocused, setIsFocused] = useState(false);
 
+  // Maintain local string to support in-progress decimal typing like "8.", "0.", ".5"
+  const [text, setText] = useState(
+    value !== undefined && value !== null ? String(value) : ''
+  );
+
+  // Sync with incoming value prop when changed externally (presets, resets, steppers)
+  useEffect(() => {
+    const propStr = value !== undefined && value !== null ? String(value) : '';
+
+    if (isFocused) {
+      // Do not overwrite user while they are actively typing intermediate values
+      if (
+        text === '.' ||
+        text === '-' ||
+        text === '' ||
+        text.endsWith('.') ||
+        (Number(text) === Number(value) && !Number.isNaN(Number(text)))
+      ) {
+        return;
+      }
+    }
+
+    setText(propStr);
+  }, [value, isFocused]);
+
+  const handleChangeText = (incomingText) => {
+    // Convert regional comma to decimal dot
+    let sanitized = incomingText.replace(/,/g, '.');
+
+    const isNumeric =
+      keyboardType === 'numeric' ||
+      keyboardType === 'decimal-pad' ||
+      keyboardType === 'number-pad';
+
+    if (isNumeric) {
+      // Only allow valid numeric / decimal patterns (e.g. "", "8", "8.", "8.5", ".5")
+      if (!/^[-]?\d*\.?\d*$/.test(sanitized)) {
+        return;
+      }
+    }
+
+    setText(sanitized);
+
+    if (onChangeText) {
+      onChangeText(sanitized);
+    }
+  };
+
+  const handleBlur = () => {
+    setIsFocused(false);
+    const isNumeric =
+      keyboardType === 'numeric' ||
+      keyboardType === 'decimal-pad' ||
+      keyboardType === 'number-pad';
+
+    if (isNumeric) {
+      let trimmed = text.trim();
+      if (trimmed === '' || trimmed === '.' || trimmed === '-') {
+        const fallback = min !== undefined ? String(min) : '0';
+        setText(fallback);
+        if (onChangeText) onChangeText(fallback);
+      } else {
+        if (trimmed.endsWith('.')) {
+          trimmed = trimmed.slice(0, -1);
+        }
+        if (trimmed.startsWith('.')) {
+          trimmed = '0' + trimmed;
+        }
+        let numVal = Number(trimmed);
+        if (!Number.isNaN(numVal)) {
+          if (min !== undefined && numVal < min) {
+            trimmed = String(min);
+          }
+          if (max !== undefined && numVal > max) {
+            trimmed = String(max);
+          }
+        }
+        setText(trimmed);
+        if (onChangeText) onChangeText(trimmed);
+      }
+    }
+  };
+
   const handleStep = (delta) => {
-    const current = Number(value) || 0;
+    const current = Number(text) || Number(value) || 0;
     let next = current + delta;
     if (min !== undefined && next < min) next = min;
     if (max !== undefined && next > max) next = max;
-    // Keep decimal precision if step is fractional
     if (step < 1) {
-      next = Number(next.toFixed(3));
+      next = Number(next.toFixed(4));
     }
-    onChangeText(String(next));
+    const nextStr = String(next);
+    setText(nextStr);
+    if (onChangeText) {
+      onChangeText(nextStr);
+    }
   };
 
   return (
@@ -92,15 +179,15 @@ export default function InputField({
             { color: theme.colors.textPrimary },
             !editable && { color: theme.colors.textSecondary }
           ]}
-          value={value !== undefined && value !== null ? String(value) : ''}
-          onChangeText={onChangeText}
+          value={text}
+          onChangeText={handleChangeText}
           keyboardType={keyboardType}
           placeholder={placeholder}
           placeholderTextColor={theme.colors.textMuted}
           editable={editable}
           textAlign="center"
           onFocus={() => setIsFocused(true)}
-          onBlur={() => setIsFocused(false)}
+          onBlur={handleBlur}
         />
 
         {unit ? (

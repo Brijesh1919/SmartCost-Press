@@ -4,7 +4,7 @@
  */
 
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useAppSettings } from '../context/AppSettingsContext';
 
@@ -26,9 +26,11 @@ export default function Header() {
     <View style={[styles.container, { backgroundColor: theme.colors.surfaceCard, borderBottomColor: theme.colors.divider }]}>
       {/* Brand & Subtitle */}
       <View style={styles.brandRow}>
-        <View style={[styles.logoBadge, { backgroundColor: theme.colors.primaryContainer }]}>
-          <MaterialIcons name="local-printshop" size={20} color="#FFFFFF" />
-        </View>
+        <Image
+          source={require('../../assets/icon.png')}
+          style={styles.logoBadgeImage}
+          resizeMode="cover"
+        />
         <View style={styles.brandTextCol}>
           <Text style={[styles.brandTitle, { color: theme.colors.textPrimary }]} numberOfLines={1}>
             {t.appName}
@@ -116,6 +118,11 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingRight: 10,
     gap: 10
+  },
+  logoBadgeImage: {
+    width: 36,
+    height: 36,
+    borderRadius: 8
   },
   logoBadge: {
     width: 36,
